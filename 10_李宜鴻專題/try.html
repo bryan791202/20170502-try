@@ -1,0 +1,180 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>閃彈</title>
+        <script src="jquery.js"></script>
+        <script>
+                //隨機取出整數
+                function getRandomInt(min,max){
+                    return Math.floor(Math.random()*(max - min + 1))+ min ;
+                }
+        
+            $(function(){
+                var $body =$("body"),
+                    $outerspace = $("#outerspace"),
+                    $plane      = $("#plane"),
+                    $score      = $("#score"),
+                    counter     = 0;
+                    p_speed     = 3;
+                    p_xway      = 0;
+                    p_yway      = 0;
+                    bR          =Math.sqrt(Math.pow($outerspace.width()/2,2) +Math.pow($outerspace.height()/2,2)),
+                    b_speed     = 2;
+                                
+                    
+                    $plane.css("left",($outerspace.width()-$plane.width())/2+"px");
+                    $plane.css("top",($outerspace.height()-$plane.height())/2+"px");
+                    
+                    $body.keydown(function(e){
+                        // up38  left 37 right 39  down 40
+                        switch(e.which){
+                            
+                            case 38:p_yway =-1;break;
+                            //  up
+                            case 40:p_yway =1;break;
+                            // down
+                            case 37:p_xway =-1;break;
+                            // left
+                            case 39:p_xway =1;break;
+                            // right
+                        }
+                        
+                    });
+                    $body.keyup(function(){
+                        p_xway = 0;
+                        p_yway = 0;
+                        
+                    })
+                    //建立子彈
+                    function createBullet(){
+                        $outerspace.append("<div class ='sprite bullet'></div>");
+                        var b = $outerspace.find(".bullet:last"),
+                            b_round  = getRandomInt(0,359),
+                            bx=$outerspace.width()/2+bR*Math.cos(Math.PI*b_round/180)-b.width()/2,
+                            by=$outerspace.height()/2+bR*Math.sin(Math.PI*b_round/180)-b.height()/2;
+                            b_end_round = getRandomInt(b_round+90,b_round+270);
+                            b.data("x_speed",b_speed*Math.cos(Math.PI*b_end_round/180));
+                            b.data("y_speed",b_speed*Math.sin(Math.PI*b_end_round/180));
+                            
+                        
+                        b.css("left",bx+"px");
+                        b.css("top",by+"px");
+                        
+                    }
+                    for(var i=0; i< 40 ; i++)
+                    createBullet();
+                    
+                    
+                    //飛機控制動畫
+                    var gameLoop = setInterval(function(){
+                        var xspeed = 0,
+                            yspeed = 0,
+                            x= parseInt($plane.css("left")),
+                            y= parseInt($plane.css("top"));
+
+                        if(p_xway ==-1 && p_yway ==0) xspeed = p_speed * p_xway;    //左
+                        if(p_xway == 1 && p_yway ==0) xspeed = p_speed * p_xway;   //右
+                        if(p_xway ==0 && p_yway ==-1) yspeed = p_speed * p_yway;  //上
+                        if(p_xway ==0 && p_yway ==1) yspeed = p_speed * p_yway; //下
+                        if(p_xway !=0 && p_yway !=0){
+                            xspeed = p_speed/Math.sqrt(2) *p_xway;     //斜角
+                            yspeed = p_speed/Math.sqrt(2) *p_yway;      //斜角
+                            
+                        }
+                        x = x+xspeed;
+                        y = y+yspeed;
+                        if(x<0)x=0;
+                        if(y<0)y=0;
+                        if(x>$outerspace.width()-$plane.width()) x = $outerspace.width()-$plane.width();
+                        if(y>$outerspace.height()-$plane.height()) y = $outerspace.height()-$plane.height();
+                        $plane.css("left",x+"px");
+                        $plane.css("top" ,y+"px");
+                        
+                        //子彈移動
+                            $(".bullet").each(function(){
+                            var $this =$(this),
+                            bx = parseInt($this.css("left")),
+                            by = parseInt($this.css("top"));
+                        bx = Math.round(bx+$this.data("x_speed"));
+                        by = Math.round(by+$this.data("y_speed"));
+                        dist = Math.sqrt(Math.pow($outerspace.width()/2-bx,2)+Math.pow($outerspace.height()/2-by,2));
+                        $this.css("left",bx+"px");
+                        $this.css("top",by+"px");
+                        
+                        if($this.width()/2+bR < dist){
+                            $this.remove();
+                            createBullet();
+                        }
+                            
+                     
+                        //子彈與飛機碰撞
+                        var plane_x = parseInt($plane.css("left"))+$plane.width()/2,
+                            plane_y = parseInt($plane.css("top"))+$plane.height()/2,
+                            p_b_dist = Math.sqrt(Math.pow(plane_x-(bx+$this.width()/2),2)+Math.pow(plane_y-(by+$this.height()/2),2));
+                            if($this.width()/2+$plane.width()/2 > p_b_dist){
+                                
+                                clearInterval(gameLoop);
+                            }
+                        
+                        })
+                        //顯示分數
+                        $score.html(++counter);
+                    },1000/700);
+                    
+            })
+            
+        </script>
+        
+        <style>
+            body{
+                text-align:center;
+            }
+        
+            #outerspace{
+                text-align:center;
+                display:inline-block;
+                position:relative;
+                width:500px;
+                height:400px;
+                background:url("out.png");
+                /*外太空背景*/
+            }
+            .sprite{
+                display:inline-block;
+                position:absolute;
+            }
+            #plane{
+                text-align:center;
+                width:18px;
+                height:18px;
+                line-height: 200px;
+                background: url("UP.png");
+            }
+            .bullet{
+                width:4px;
+                height:4px;
+                background-color:#FFFFFF;
+            }
+            #score{
+                width:100%;
+                color:white;
+                font-size:25px;
+                padding-left:5px;
+                z-index:999;
+                text-align:left;
+                
+            }
+            
+            
+        </style>
+    </head>
+        <body>
+            <div id="outerspace">
+                <div id="plane" class="sprite" ></div>
+                <div id="score" class="sprite">0000</div>
+            </div>
+        </body>
+        
+ 
+    
+</html>

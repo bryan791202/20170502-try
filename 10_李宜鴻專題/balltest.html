@@ -1,0 +1,133 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Demo</title>
+		<style type="text/css">
+			.contanier{width: 400px;height: 300px;margin: auto;background-image:url("out.png") ;position: absolute;} 
+			#myCanvas{width: 100%;height: 100%;}
+			
+			</style>
+	</head>
+	
+	<body onload="canvasSpaceGame()">
+		
+		<div class="contanier">
+			
+			<canvas id="myCanvas" width="850" height="450">  </canvas>
+			<img src="air.png" onclick="doAnimateShow();">
+		
+			
+	
+			
+		</div>
+
+	
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript">
+
+	  	
+	  	
+		
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+		
+		var user_Image = new Image();
+	
+		user_Image.src="air.png";
+		
+    	var shipX = 50; // current ship position X
+		var shipY = 50; // current ship position Y
+    	var oldShipX = 45; // old ship position Y
+    	var oldShipY = 45; // old ship position Y
+    	
+    
+		
+		
+		
+		var ballList = init();
+		var timer = setInterval(function(){
+			var length = ballList.length;
+			ctx.clearRect(0,0,850,450);
+			for(var i = 0;i < length;i++){
+				move(ballList[i]);
+				drawBall(ballList[i]);
+			}
+
+		},15)
+		
+			
+			
+		
+		//ctx.fillRect(0,0,850,450);
+		function getNum(){
+			return Math.ceil(Math.round(25) );
+		}
+		function getRdius(){
+			return (Math.PI * 1.5);
+		}
+		function getColor(){
+			return Math.floor(Math.random());
+		}
+		function getSpeed(){
+			return (Math.random() * 5)
+		}
+		function getDir(){
+			return Math.round(Math.random());
+		}
+		function getBall(){
+			var elem = {};
+			elem.radius = getRdius();
+			// elem.color = "rgb(" + getColor() +"," + getColor() + "," + getColor() +")";
+			elem.moveX = getDir() ? getSpeed() : - (getSpeed());
+			elem.moveY = getDir() ? getSpeed() : - (getSpeed());
+			elem.x = Math.floor(Math.random() * 850);
+			elem.y = Math.floor(Math.random() * 450);
+			return elem;
+		}
+		function init(){
+			var num = getNum();
+			var arr = [];
+			for(var i = 0;i < num;i++){
+				var listItem = getBall();
+				arr.push(listItem);
+			}
+			return arr;
+			
+		}
+		function move(ballList){
+			ballList.x += ballList.moveX;
+			ballList.y += ballList.moveY;
+			var maxX = 850,maxY = 450;
+			if(ballList.x + ballList.radius >= maxX){
+				ballList.x = maxX - ballList.radius;
+				ballList.moveX = - (ballList.moveX);
+			}
+			else if(ballList.x <= ballList.radius){
+				ballList.x = ballList.radius;
+				ballList.moveX = - (ballList.moveX);
+			}
+			if(ballList.y + ballList.radius >= 450){
+				ballList.y = maxY - ballList.radius;
+				ballList.moveY = - (ballList.moveY);
+			}
+			else if(ballList.y <= 0){
+				ballList.y = ballList.radius;
+				ballList.moveY = - (ballList.moveY);
+			}
+		}
+		function drawBall(ballList){
+			ctx.beginPath();
+			ctx.fillStyle ="orange";
+			ctx.arc(ballList.x,ballList.y,ballList.radius,0,2 * Math.PI);
+			ctx.fill();
+			//ctx.stroke();
+			ctx.closePath();
+			
+		
+			ctx.drawImage(user_Image,350,250,30,30);
+		}
+    	
+		
+	</script>
+	</body>
+</html>

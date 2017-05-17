@@ -1,0 +1,208 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Demo</title>
+		<style type="text/css">
+			.contanier{width: 400px;height: 300px;margin: auto;background-image:url("out.png") ;position: relative;} 
+			.sprite{display:inline-block;position:absolute;}
+			 #score{width:100%;color:white;font-size:25px;padding-left:5px;z-index:999;text-align:left;}
+			#myCanvas{width: 100%;height: 100%;}
+		</style>
+		</head>
+	
+	<body>
+		
+		<div class="contanier">
+			<div id ="score" class ="sprite">0000</div>
+			<canvas id="myCanvas" width="850" height="450">  </canvas>
+			
+		</div>
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript">
+	
+	$(document).ready(function(){
+
+        var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+		
+		var user_Image = new Image();
+	
+		user_Image.src="air.png";
+		
+    	var shipX = 300; // current ship position X
+		var shipY = 250; // current ship position Y
+    	var oldShipX = 45; // old ship position Y
+    	var oldShipY = 45; // old ship position Y
+    	var $score = $("#score");
+		var counter = 0;
+
+    	
+
+    	user_Image.onload = function(){
+        test();
+        }
+        var h = user_Image.height;
+        var w = user_Image.width;
+        var test = function(){
+
+
+        var h =user_Image.height *0.15;
+        var w =user_Image.width  *0.15;
+        ctx.drawImage(user_Image,shipX,shipY,h,w);
+       
+        
+		}
+
+        var animate = function(){
+        test();
+}
+		var ballList = init();
+		var timer = setInterval(function(){
+			var length = ballList.length;
+			ctx.clearRect(0,0,850,450);
+			for(var i = 0;i < length;i++){
+				move(ballList[i]);
+				drawBall(ballList[i]);
+			}
+			
+		},15)
+		
+		//ctx.fillRect(0,0,850,450);
+		function getNum(){
+			return Math.ceil(Math.round(25) );
+		}
+		function getRdius(){
+			return (Math.PI * 1.5);
+		}
+		function getColor(){
+			return Math.floor(Math.random());
+		}
+		function getSpeed(){
+			return (Math.random() * 5)
+		}
+		function getDir(){
+			return Math.round(Math.random());
+		}
+		function getBall(){
+			var elem = {};
+			elem.radius = getRdius();
+			// elem.color = "rgb(" + getColor() +"," + getColor() + "," + getColor() +")";
+			elem.moveX = getDir() ? getSpeed() : - (getSpeed());
+			elem.moveY = getDir() ? getSpeed() : - (getSpeed());
+			elem.x = Math.floor(Math.random() * 850);
+			elem.y = Math.floor(Math.random() * 450);
+			return elem;
+		}
+   
+		function init(){
+			var num = getNum();
+			var arr = [];
+			for(var i = 0;i < num;i++){
+				var listItem = getBall();
+				arr.push(listItem);
+			}
+			return arr;
+			
+		}
+		
+		function move(ballList){
+			ballList.x += ballList.moveX;
+			ballList.y += ballList.moveY;
+			var maxX = 850,maxY = 450;
+			if(ballList.x + ballList.radius >= maxX){
+				ballList.x = maxX - ballList.radius;
+				ballList.moveX = - (ballList.moveX);
+			}
+			else if(ballList.x <= ballList.radius){
+				ballList.x = ballList.radius;
+				ballList.moveX = - (ballList.moveX);
+			}
+			if(ballList.y + ballList.radius >= 450){
+				ballList.y = maxY - ballList.radius;
+				ballList.moveY = - (ballList.moveY);
+			}
+			else if(ballList.y <= 0){
+				ballList.y = ballList.radius;
+				ballList.moveY = - (ballList.moveY);
+			}
+		}
+		function drawBall(ballList){
+			ctx.beginPath();
+			ctx.fillStyle ="orange";
+			ctx.arc(ballList.x,ballList.y,ballList.radius,0,2 * Math.PI);
+			ctx.fill();
+			//ctx.stroke();
+			ctx.closePath();
+		
+		}
+
+		var gameLoop = $(document).keydown(function(e){
+    
+        gameLoop=setInterval(animate,15);
+    
+        if(e.keyCode==37){
+    
+        shipX = shipX-oldShipX;
+        if(shipX<0){
+        shipX=0;
+         }
+        console.log(shipX);
+        }
+    
+        else if(e.keyCode==38){
+        shipY=shipY-oldShipY;
+        if(shipY<0){
+            shipY=0;
+        }
+        console.log(shipY);
+         }
+        else if(e.keyCode==39){
+        shipX=shipX+oldShipX;
+        if(shipX+(user_Image.width)*0.1>canvas.width){
+            shipX=shipX-oldShipX;
+            console.log(canvas.width);
+        }
+        console.log(shipX);
+         }
+        else if(e.keyCode==40){
+        shipY=shipY+oldShipY;
+        if(shipY+(user_Image.height)*0.1>canvas.height){
+        shipY=shipY-oldShipY;    
+        }
+        console.log(shipY);
+    }
+});
+
+    $(document).keyup(function(e){
+        if(e.keyCode == 37 && e.keyCode == 38){
+
+        }
+        if(e.keyCode == 37){
+        console.log("37 left");
+        }
+        else if(e.keyCode == 38){
+        console.log("38 up");
+        }
+        else if(e.keyCode == 39){
+        console.log("39 right");
+        }
+        else if(e.keyCode == 40){
+        console.log("40 down");
+        }
+
+        var pcx=shipX+user_Image.width()/2,
+        	pcy=shipY+user_Image.height()/2,
+        p_d_dist =Math.sqrt(Math.pow(psx-shipX,2)+Math.pow(pcy-shipY,2));
+        if(ballList.width()/2+user_Image.width()/2 >p_d_dist){
+
+        	clearInterval(gameLoop);
+        }
+});    
+		$score.html(++counter);
+	});
+	    
+	    
+			
+	</script>
+	</body>
+</html>
